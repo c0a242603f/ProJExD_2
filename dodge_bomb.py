@@ -1,7 +1,7 @@
 import os
 import sys
 import pygame as pg
-
+import random
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -23,12 +23,31 @@ def main():
     clock = pg.time.Clock()
     tmr = 0
 
+    bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像
+
+    #爆弾サーフェイスの作成
+    bb_img = pg.Surface((20, 20))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
+    bb_img.set_colorkey((0, 0, 0))
+
+    #爆弾のランダム設定
+    bb_rct = bb_img.get_rect()
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+
+    vx,vy = 0,0 #爆弾の速度
+    vx += 5
+    vy += 5
+
+
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
         screen.blit(bg_img, [0, 0]) 
-
+        screen.blit(bb_img, bb_rct)
+        bb_rct.move_ip(vx, vy)
+        
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, 5), pg.K_LEFT:(-5, 0), pg.K_RIGHT:(5, 0)}
