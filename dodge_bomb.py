@@ -38,8 +38,6 @@ def main():
     vx += 5
     vy += 5
 
-
-
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -47,7 +45,7 @@ def main():
         screen.blit(bg_img, [0, 0]) 
         screen.blit(bb_img, bb_rct)
         bb_rct.move_ip(vx, vy)
-        
+
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, 5), pg.K_LEFT:(-5, 0), pg.K_RIGHT:(5, 0)}
@@ -56,6 +54,28 @@ def main():
                 sum_mv = list(DELTA[i])
         kk_rct.move_ip(sum_mv)
         screen.blit(kk_img, kk_rct)
+
+        def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+            """
+            引数：こうかとんRectかばくだんRect
+            戻り値：タプル（横方向判定結果，縦方向判定結果）
+            画面内ならTrue，画面外ならFalse
+            """
+            yoko, tate = True, True
+            if obj_rct.left < 0 or WIDTH < obj_rct.right: # 横方向判定
+                yoko = False
+            if obj_rct.top < 0 or HEIGHT < obj_rct.bottom: # 縦方向判定
+                tate = False
+            return yoko, tate
+        
+        if check_bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) #移動をなかったことにする
+
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
 
         pg.display.update()
         tmr += 1
