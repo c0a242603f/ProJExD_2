@@ -21,12 +21,30 @@ def main():
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
+
+
+    def make_accel_bomb() -> tuple[list[pg.Surface], list[int]]:
+        """
+        引数：なし
+        戻り値：リスト(加速度と円の大きさ)
+        時間に応じて爆弾画像と加速度を返す関数
+        """
+        bb_imgs = []
+        bb_accs = [a for a in range(1, 11)]  # 加速度リスト（1〜10）
+        for r in range(1, 11):
+            img = pg.Surface((20*r, 20*r))  # サイズ20×rの正方形サーフェス
+            pg.draw.circle(img, (255, 0, 0), (10*r, 10*r), 10*r)  # 赤い円
+            img.set_colorkey((0, 0, 0))  
+            bb_imgs.append(img)
+        return bb_imgs, bb_accs
+    
+    bb_imgs, bb_accs = make_accel_bomb()
+
     clock = pg.time.Clock()
     tmr = 0
 
     bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像
-
-
+    
     #爆弾サーフェイスの作成
     bb_img = pg.Surface((20, 20))
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
@@ -80,10 +98,8 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+            
         screen.blit(bg_img, [0, 0]) 
-        screen.blit(bb_img, bb_rct)
-        bb_rct.move_ip(vx, vy)
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, 5), pg.K_LEFT:(-5, 0), pg.K_RIGHT:(5, 0)}
@@ -114,6 +130,18 @@ def main():
             vx *= -1
         if not tate:
             vy *= -1
+
+        # 段階（0～9）を時間で決定
+        stage = min(tmr // 500, 9)
+
+        # 拡大・加速爆弾
+        bb_img_now = bb_imgs[stage]
+        acc = bb_accs[stage]
+        avx = vx * acc
+        avy = vy * acc
+
+        bb_rct.move_ip(avx, avy)
+        screen.blit(bb_img_now, bb_rct)
 
         if kk_rct.colliderect(bb_rct): #爆弾衝突判定
             gameover(screen)
