@@ -77,6 +77,9 @@ def main():
         if not tate:
             vy *= -1
 
+        if kk_rct.colliderect(bb_rct): #爆弾衝突判定
+            return
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
