@@ -29,16 +29,7 @@ kk_img_dict = { #方向転換辞書
     }
 
 
-def main():
-    pg.display.set_caption("逃げろ！こうかとん")
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")    
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    kk_rct = kk_img.get_rect()
-    kk_rct.center = 300, 200
-
-
-    def make_accel_bomb() -> tuple[list[pg.Surface], list[int]]:
+def make_accel_bomb() -> tuple[list[pg.Surface], list[int]]:
         """
         引数：なし
         戻り値：リスト(加速度と円の大きさ)
@@ -52,30 +43,9 @@ def main():
             img.set_colorkey((0, 0, 0))  
             bb_imgs.append(img)
         return bb_imgs, bb_accs
-    
-    
-    bb_imgs, bb_accs = make_accel_bomb()
-
-    clock = pg.time.Clock()
-    tmr = 0
-
-    bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像
-    
-    #爆弾サーフェイスの作成
-    bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
-    bb_img.set_colorkey((0, 0, 0))
-
-    #爆弾のランダム設定
-    bb_rct = bb_img.get_rect()
-    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
-
-    vx,vy = 0,0 #爆弾の速度
-    vx += 5
-    vy += 5
 
 
-    def gameover(screen: pg.Surface) -> None :
+def gameover(screen: pg.Surface) -> None :
          """
          引数：screen
          戻り値：なし
@@ -110,16 +80,16 @@ def main():
          time.sleep(5)
 
 
-    def get_kk_img(mv: tuple[int, int]) -> pg.Surface:
+def get_kk_img(mv: tuple[int, int]) -> pg.Surface:
         """
         引数：タプル
         戻り値：画像の方向転換
         タプルの値に応じて画像の向きを変える
         """
         return kk_img_dict[mv]
-    
 
-    def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+
+def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
             """
             引数：こうかとんRectかばくだんRect
             戻り値：タプル（横方向判定結果，縦方向判定結果）
@@ -131,6 +101,35 @@ def main():
             if obj_rct.top < 0 or HEIGHT < obj_rct.bottom: # 縦方向判定
                 tate = False
             return yoko, tate
+
+
+def main():
+    pg.display.set_caption("逃げろ！こうかとん")
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    bg_img = pg.image.load("fig/pg_bg.jpg")    
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_rct = kk_img.get_rect()
+    kk_rct.center = 300, 200
+    
+    bb_imgs, bb_accs = make_accel_bomb()
+
+    clock = pg.time.Clock()
+    tmr = 0
+
+    bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像
+    
+    #爆弾サーフェイスの作成
+    bb_img = pg.Surface((20, 20))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
+    bb_img.set_colorkey((0, 0, 0))
+
+    #爆弾のランダム設定
+    bb_rct = bb_img.get_rect()
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+
+    vx,vy = 0,0 #爆弾の速度
+    vx += 5
+    vy += 5
 
 
     while True:
