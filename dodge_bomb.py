@@ -2,6 +2,7 @@ import os
 import sys
 import pygame as pg
 import random
+import time
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -25,6 +26,7 @@ def main():
 
     bg_img = pg.image.load("fig/pg_bg.jpg") #背景画像
 
+
     #爆弾サーフェイスの作成
     bb_img = pg.Surface((20, 20))
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
@@ -37,6 +39,42 @@ def main():
     vx,vy = 0,0 #爆弾の速度
     vx += 5
     vy += 5
+
+
+    def gameover(screen: pg.Surface) -> None :
+         """
+         引数：screen
+         戻り値：なし
+         ゲームオーバーの画面の関数
+         """
+         #ブラックアウト
+         black_out = pg.Surface((WIDTH, HEIGHT))
+         black_out.fill((0,0,0))
+         black_out.set_alpha(150)
+         screen.blit(black_out, (0, 0))
+
+         #泣き顔こうかとんの画像
+         gameover_img = pg.image.load("fig/8.png")
+         gameover_rct = gameover_img.get_rect()
+         gameover_rct.center = WIDTH//2+200, HEIGHT//2
+         screen.blit(gameover_img, gameover_rct)
+
+         #泣き顔こうかとんの画像２
+         gameover_img2 = pg.image.load("fig/8.png")
+         gameover_rct2 = gameover_img2.get_rect()
+         gameover_rct2.center = WIDTH//2-200, HEIGHT//2
+         screen.blit(gameover_img2, gameover_rct2)
+
+         # Game Over テキスト描画
+         font = pg.font.SysFont(None, 80)
+         txt = font.render("Game Over", True, (255, 255, 255))
+         txt_rct = txt.get_rect(center=(WIDTH//2, HEIGHT//2))
+         screen.blit(txt, txt_rct)
+
+         # 画面更新と表示維持
+         pg.display.update()
+         time.sleep(5)
+
 
     while True:
         for event in pg.event.get():
@@ -78,6 +116,7 @@ def main():
             vy *= -1
 
         if kk_rct.colliderect(bb_rct): #爆弾衝突判定
+            gameover(screen)
             return
 
         pg.display.update()
