@@ -6,12 +6,27 @@ import time
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-DELTA = { #移動量辞書
-    pg.K_UP:(0, -5),
-    pg.K_DOWN:(0, 5), 
-    pg.K_LEFT:(-5, 0), 
-    pg.K_RIGHT:(5, 0)
-}
+
+DELTA = {
+        pg.K_UP: (0, -5),
+        pg.K_DOWN: (0, 5),
+        pg.K_LEFT: (-5, 0),
+        pg.K_RIGHT: (5, 0),
+    }
+
+kk_img_src = pg.image.load("fig/3.png")
+
+kk_img_dict = { #方向転換辞書
+        (0,0): pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9),
+        (5, 0): pg.transform.rotozoom(pg.transform.flip(kk_img_src, True, False), 0, 0.9),
+        (-5, 0): pg.transform.rotozoom(kk_img_src, 0, 0.9),
+        (0, -5): pg.transform.rotozoom(pg.transform.flip(kk_img_src, False, True), -90, 0.9),
+        (0, 5): pg.transform.rotozoom(pg.transform.flip(kk_img_src, False, True), -270, 0.9),
+        (5, -5): pg.transform.rotozoom(pg.transform.flip(kk_img_src, True, False), 45, 0.9),
+        (5, 5): pg.transform.rotozoom(pg.transform.flip(kk_img_src, True, False), -45, 0.9),
+        (-5, -5): pg.transform.rotozoom(kk_img_src, -45, 0.9),
+        (-5, 5): pg.transform.rotozoom(kk_img_src, 45, 0.9),
+    }
 
 
 def main():
@@ -37,6 +52,7 @@ def main():
             img.set_colorkey((0, 0, 0))  
             bb_imgs.append(img)
         return bb_imgs, bb_accs
+    
     
     bb_imgs, bb_accs = make_accel_bomb()
 
@@ -94,22 +110,16 @@ def main():
          time.sleep(5)
 
 
-    while True:
-        for event in pg.event.get():
-            if event.type == pg.QUIT: 
-                return
-            
-        screen.blit(bg_img, [0, 0]) 
-        key_lst = pg.key.get_pressed()
-        sum_mv = [0, 0]
-        DELTA = {pg.K_UP:(0, -5), pg.K_DOWN:(0, 5), pg.K_LEFT:(-5, 0), pg.K_RIGHT:(5, 0)}
-        for i in DELTA.keys():
-            if key_lst[i]:
-                sum_mv = list(DELTA[i])
-        kk_rct.move_ip(sum_mv)
-        screen.blit(kk_img, kk_rct)
+    def get_kk_img(mv: tuple[int, int]) -> pg.Surface:
+        """
+        引数：タプル
+        戻り値：画像の方向転換
+        タプルの値に応じて画像の向きを変える
+        """
+        return kk_img_dict[mv]
+    
 
-        def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
+    def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
             """
             引数：こうかとんRectかばくだんRect
             戻り値：タプル（横方向判定結果，縦方向判定結果）
@@ -121,9 +131,28 @@ def main():
             if obj_rct.top < 0 or HEIGHT < obj_rct.bottom: # 縦方向判定
                 tate = False
             return yoko, tate
+
+
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT: 
+                return
+            
+        screen.blit(bg_img, [0, 0]) 
+        key_lst = pg.key.get_pressed()
+        sum_mv = [0, 0]
+        
+        for k, delta in DELTA.items():
+            if key_lst[k]:
+                sum_mv[0] += delta[0]
+                sum_mv[1] += delta[1]
+        kk_img = get_kk_img(tuple(sum_mv))
+        kk_rct.move_ip(sum_mv)
         
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) #移動をなかったことにする
+
+        screen.blit(kk_img, kk_rct)
 
         yoko, tate = check_bound(bb_rct)
         if not yoko:
